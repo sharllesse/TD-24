@@ -91,6 +91,10 @@ void Exo2()
 template<class F, class S, class T>
 struct Random_Struct
 {
+	Random_Struct() {}
+	Random_Struct(F _first_ptr, S _second_ptr, T _third_ptr) : m_first_ptr(std::make_shared<F>(_first_ptr)), m_second_ptr(std::make_shared<S>(_second_ptr)), m_third_ptr(std::make_shared<T>(_third_ptr)) {}
+	~Random_Struct() {}
+
 	std::shared_ptr<F> m_first_ptr;
 	std::shared_ptr<S> m_second_ptr;
 	std::shared_ptr<T> m_third_ptr;
@@ -98,6 +102,9 @@ struct Random_Struct
 
 void Exo3()
 {
+	Random_Struct tmp_struct(100, 100.f, 100.);
+
+	std::cout << *tmp_struct.m_first_ptr << ' ' << *tmp_struct.m_second_ptr << ' ' << *tmp_struct.m_third_ptr << std::endl;
 }
 #pragma endregion
 
@@ -137,7 +144,8 @@ public:
 class Player
 {
 public:
-	Player() : m_inventory(std::make_unique<Inventory>(10)), m_hand_item(std::make_unique<Item>("Hand")) {}
+	Player() : m_inventory(std::make_unique<Inventory>(10)), m_hand_item(std::make_unique<Item>("Hand")), m_compagnon(std::make_unique<Player>("Boubakar")) {}
+	Player(std::string _compagnon_name) : m_inventory(std::make_unique<Inventory>(10)), m_hand_item(std::make_unique<Item>("Hand")), m_compagnon_name(_compagnon_name) {}
 	~Player() {}
 
 	void give_item(int _inventory_case, std::string _name)
@@ -170,6 +178,9 @@ public:
 private:
 	std::unique_ptr<Inventory> m_inventory;
 	std::unique_ptr<Item> m_hand_item;
+	std::unique_ptr<Player> m_compagnon;
+
+	std::string m_compagnon_name;
 };
 
 void Exo4()
@@ -178,6 +189,54 @@ void Exo4()
 	player.give_item(0, "Hache");
 	player.take_item_in_hand(0);
 	player.take_item_in_hand(0);
+}
+#pragma endregion
+
+#pragma region EXO5
+void Exo5() 
+{
+	std::shared_ptr<int> tmp_shared_int = std::make_shared<int>(10);
+
+	int* int_ptr = tmp_shared_int.get();
+	std::weak_ptr<int> int_ptr_weak = tmp_shared_int;
+
+	std::cout << *int_ptr << std::endl;
+
+	if (std::shared_ptr<int> tmp_shared_ptr = int_ptr_weak.lock())
+		std::cout << *tmp_shared_ptr << std::endl;
+
+	tmp_shared_int.reset();
+
+	if (std::shared_ptr<int> tmp_shared_ptr = int_ptr_weak.lock())
+		std::cout << *tmp_shared_ptr << std::endl;
+	else
+		std::cout << "Expired" << std::endl;
+
+	if (int_ptr != nullptr)
+		std::cout << *int_ptr << std::endl;
+	else
+		std::cout << "NullPtr" << std::endl;
+
+	//La différence entre le shared_ptr et le weak_ptr et que le weak_ptr sert d'observateur du shared_ptr
+	//Il est utiliser pour obtenir les informations du shared_ptr sans faire référence à celui si
+	//Ce qui première chose permet d'éviter les références circulaires et donc potentiellement
+	//Faire en sorte que le shared_ptr ne puisse pas se delete.
+	//L'avantage du weak_ptr est qu'il va géré automatiquement le faite est que le ptr n'existe plus et donc éviter les crashs
+	//Et aussi se delete tout seule ce qui évitent les fuites des mémoires hasardeuses
+}
+#pragma endregion
+
+#pragma region EXO6
+void Exo6()
+{
+	//Le premier est Shrink to fit.
+	//Il se base sur un concept très simple qui est de faire en sorte.
+	//que le container et tout juste la place pour contenir les objets le composant
+	//Cela permet de faire disparaître la mémoire allouée en plus et qui ne sera potentiellement pas utilisé.
+
+	//Le deuxième est Iterator Pair
+	//Il permet de créer une fonction qui permet d'initialiser des conteneurs avec d'autres conteneurs.
+	//et donc en prenant les valeurs d'une liste les cloner dans un vector.
 }
 #pragma endregion
 
@@ -190,4 +249,8 @@ int main()
 	Exo3();
 
 	Exo4();
+
+	Exo5();
+
+	Exo6();
 }
